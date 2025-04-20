@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>🔗 URL Shortener</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 75%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            transition: 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+
+        button {
+            padding: 12px 20px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 25px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        #shortUrl {
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #007bff;
+            text-decoration: none;
+            word-break: break-word;
+        }
+
+        #shortUrl:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🔗 Simple URL Shortener</h2>
+
+    <input type="text" id="longUrl" placeholder="Enter your URL here..." />
+    <button onclick="shortenUrl()">Shorten</button>
+
+    <div id="result">
+        <p>Shortened URL:</p>
+        <a id="shortUrl" href="#" target="_blank"></a><br />
+        <button onclick="copyToClipboard()">📋 Copy</button>
+    </div>
+
+    <script>
+        async function shortenUrl() {
+            const longUrl = document.getElementById("longUrl").value.trim();
+            if (!longUrl) return alert("Please enter a URL");
+
+            const res = await fetch("/api/shorten", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ longUrl })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.shortUrl) {
+                const shortUrlEl = document.getElementById("shortUrl");
+                shortUrlEl.href = data.shortUrl;
+                shortUrlEl.textContent = data.shortUrl;
+                document.getElementById("result").style.display = "block";
+            } else {
+                alert(data.message || "Something went wrong");
+            }
+        }
+
+        function copyToClipboard() {
+            const url = document.getElementById("shortUrl").href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+
+</html>
